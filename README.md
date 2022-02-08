@@ -1,18 +1,18 @@
-Antimony integration/staging tree
+Antimony P2P Crypto
 ================================
 
+This is an Experimental Software purposely for my School Personal Project.
 
-
-Copyright (c) 2009-2014 Bitcoin Developers
-Copyright (c) 2011-2014 Litecoin Developers
-Copyright (c) 2020-2022 Antimony Developer
+Copyright (c) 2009-2014 Bitcoin Developers 
+Copyright (c) 2011-2014 Litecoin Developers 
+Copyright (c) 2020-2022 Antimony Developer 
 
 What is Antimony?
 ----------------
 
 Antimony is a lite version of Bitcoin using scrypt as a proof-of-work algorithm.
  - 2 minute block targets
- - subsidy halves in 840k blocks (~4 years)
+ - subsidy halves in 240k blocks (~4 years Approx)
  - ~5 million total coins
 
 The rest is the same as Bitcoin.
