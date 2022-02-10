@@ -3,9 +3,9 @@ Antimony P2P Crypto
 
 This is an Experimental Software purposely for my School Personal Project.
 
-Copyright (c) 2009-2014 Bitcoin Developers 
-Copyright (c) 2011-2014 Litecoin Developers 
-Copyright (c) 2020-2022 Antimony Developer 
+Copyright (c) 2009-2014 Bitcoin Developers<br />
+Copyright (c) 2011-2014 Litecoin Developers<br />
+Copyright (c) 2020-2022 Antimony Developer<br />
 
 What is Antimony?
 ----------------
@@ -14,13 +14,39 @@ Antimony is a lite version of Bitcoin using scrypt as a proof-of-work algorithm.
  - 2 minute block targets
  - subsidy halves in 240k blocks (~4 years Approx)
  - ~5 million total coins
-
-The rest is the same as Bitcoin.
  - 25 coins per block
  - 2016 blocks to retarget difficulty
 
 For more information, as well as an immediately useable, binary version of
 the Antimony client sofware, send me an email at aremeyaw_a@soshgic.edu.gh
+
+<h3> HOW TO INSTALL </h3>
+
+<h2>Release steps and Precautions:</h2>
+
+
+1) NOTE: Antimony.exe has an inbuilt miner that, your system may detect it as silent miner. So make sure you disable your Antivirus or add an exclusion for the folder.
+2) Windows Smart Screen May appear saying `"Ah! ah! I Blocked a terrible app from destroying your system!" `but this is just a result of me not getting or buying a Windows publishing Certificate.
+
+3) Last but compulsory thing to setup will be the `antimony.conf` file in your package folder., this contains active nodes on the network that I couldn't hard code into the application.
+Just copy and paste the .conf file in the `C:\Users\${Your username}\AppData\Roaming\Antimony`. It's a hidden folder so just paste this in your file explorer path.
+
+4) I will be updating a new file called `activenodes` with new ip's that are active nodes on the network. So if you are not getting connected just copy the new nodes in the `activenodes.txt` file and paste the contents into your configuration files or the `antimony.conf` file. In the path of where previous option showed you. That is the `C:\Users\${Your username}\AppData\Roaming\Antimony\antimony.conf`
+
+To start Mining the coin after starting the application, just open `help` then `debug`. Choose `console` and type in this 
+`setgenerate true`
+hit Enter
+
+Boom you have started mining your own ANTYs.
+
+To stop mining just type in the console
+`setgenerate false`
+
+Thats it! We just made our own Blockchain and Virtual Currency. 
+Don't be greedy after mining your coins.
+Make sure to send me some  ANTY donations at this address `AQXpFQRZ49wwJJsdYuWqS3FjSNLSNmYTyB` it will be much appreciated. 
+Linux or specifically Ubuntu Building instructions coming soon. Stay tuned.
+Thanks Have a nice day.
 
 License
 -------
@@ -35,7 +61,7 @@ Developers work in their own trees, then submit pull requests when they think
 their feature or bug fix is ready.
 
 If it is a simple/trivial/non-controversial change, then one of the Antimony
-development team members simply pulls it.
+development team simply pulls it.
 
 If it is a *more complicated or potentially controversial* change, then the patch
 submitter will be asked to start a discussion with the devs and community.
