@@ -20,7 +20,7 @@ Antimony is a lite version of Bitcoin using scrypt as a proof-of-work algorithm.
 For more information, as well as an immediately useable, binary version of
 the Antimony client sofware, send me an email at aremeyaw_a@soshgic.edu.gh
 
-<h3> HOW TO INSTALL </h3>
+<h3> HOW TO INSTALL for Windows OS </h3>
 
 <h2>Release steps and Precautions:</h2>
 
