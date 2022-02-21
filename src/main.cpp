@@ -2779,28 +2779,29 @@ bool InitBlockIndex() {
         //   vMerkleTree: 97ddfbbae6
 
         // Genesis block
-        const char* pszTimestamp = "06/02/2022 Antimony is the future";
+        const char* pszTimestamp = "06/02/2022 Antimony is the future"; // Offcourse its the future!!
         CTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CBigNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].nValue = 25 * COIN;
-        txNew.vout[0].scriptPubKey = CScript() << ParseHex("046bfba8d532e7105194350a57e5b3fb143e66bf6fb40429c8f4b15cd03d619cf0727ca219560415c838b06110552b7b853613f31cefb407f55fed04d027439315") << OP_CHECKSIG;
+        txNew.vout[0].scriptPubKey = CScript() << ParseHex("046bfba8d532e7105194350a57e5b3fb143e66bf6fb40429c8f4b15cd03d619cf0727ca219560415c838b06110552b7b853613f31cefb407f55fed04d027439315") << OP_CHECKSIG; //     Genesis coinbase
         CBlock block;
         block.vtx.push_back(txNew);
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1644144842;
+        block.nTime    = 1644144842; // Epic Time
         block.nBits    = 0x1e0ffff0;
         block.nNonce   = 2084997873;
 
         if (fTestNet)
         {
-            block.nTime    = 1644144830;
+            block.nTime    = 1644144830; // Epic time
             block.nNonce   = 385427593;
         }
-if (true && block.GetHash() != hashGenesisBlock)
+// starts here
+if (true && block.GetHash() != hashGenesisBlock) // change to false when creating a new genesis blockchain
         {
             printf("Searching for genesis block...\n");
             // This will figure out a valid hash and Nonce if you're
@@ -2842,7 +2843,7 @@ if (true && block.GetHash() != hashGenesisBlock)
             printf("block.nNonce = %u \n", block.nNonce);
             printf("block.GetHash = %s\n", block.GetHash().ToString().c_str());
         }
-
+//ends here
         //// debug print
         uint256 hash = block.GetHash();
         printf("%s\n", hash.ToString().c_str());
