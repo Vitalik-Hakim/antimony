@@ -272,9 +272,9 @@ class CBitcoinAddress : public CBase58Data
 public:
     enum
     {
-        PUBKEY_ADDRESS = 23, // Antimony addresses start with A
+        PUBKEY_ADDRESS = 23, // Antimony addresses starts with A
         SCRIPT_ADDRESS = 5,
-        PUBKEY_ADDRESS_TEST = 83,
+        PUBKEY_ADDRESS_TEST = 83, // antimony-testnet starts with lower case a
         SCRIPT_ADDRESS_TEST = 196,
     };
 
