@@ -7,12 +7,12 @@
 
 #include "wallet.h"
 
-extern CWallet* pwalletMain;
+extern CWallet * pwalletMain;
 
 void StartShutdown();
 bool ShutdownRequested();
 void Shutdown();
-bool AppInit2(boost::thread_group& threadGroup);
+bool AppInit2(boost::thread_group & threadGroup);
 std::string HelpMessage();
 
 #endif
