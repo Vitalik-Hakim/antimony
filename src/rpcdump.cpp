@@ -3,8 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "init.h" // for pwalletMain
+
 #include "bitcoinrpc.h"
+
 #include "ui_interface.h"
+
 #include "base58.h"
 
 #include <boost/lexical_cast.hpp>
@@ -14,26 +17,23 @@
 using namespace json_spirit;
 using namespace std;
 
-class CTxDump
-{
-public:
-    CBlockIndex *pindex;
+class CTxDump {
+    public:
+        CBlockIndex * pindex;
     int64 nValue;
     bool fSpent;
-    CWalletTx* ptx;
+    CWalletTx * ptx;
     int nOut;
-    CTxDump(CWalletTx* ptx = NULL, int nOut = -1)
-    {
+    CTxDump(CWalletTx * ptx = NULL, int nOut = -1) {
         pindex = NULL;
         nValue = 0;
         fSpent = false;
-        this->ptx = ptx;
-        this->nOut = nOut;
+        this -> ptx = ptx;
+        this -> nOut = nOut;
     }
 };
 
-Value importprivkey(const Array& params, bool fHelp)
-{
+Value importprivkey(const Array & params, bool fHelp) {
     if (fHelp || params.size() < 1 || params.size() > 3)
         throw runtime_error(
             "importprivkey <antimonyprivkey> [label] [rescan=true]\n"
@@ -62,25 +62,24 @@ Value importprivkey(const Array& params, bool fHelp)
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Private key outside allowed range");
 
     {
-        LOCK2(cs_main, pwalletMain->cs_wallet);
+        LOCK2(cs_main, pwalletMain -> cs_wallet);
 
-        pwalletMain->MarkDirty();
-        pwalletMain->SetAddressBookName(vchAddress, strLabel);
+        pwalletMain -> MarkDirty();
+        pwalletMain -> SetAddressBookName(vchAddress, strLabel);
 
-        if (!pwalletMain->AddKeyPubKey(key, pubkey))
+        if (!pwalletMain -> AddKeyPubKey(key, pubkey))
             throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
 
         if (fRescan) {
-            pwalletMain->ScanForWalletTransactions(pindexGenesisBlock, true);
-            pwalletMain->ReacceptWalletTransactions();
+            pwalletMain -> ScanForWalletTransactions(pindexGenesisBlock, true);
+            pwalletMain -> ReacceptWalletTransactions();
         }
     }
 
     return Value::null;
 }
 
-Value dumpprivkey(const Array& params, bool fHelp)
-{
+Value dumpprivkey(const Array & params, bool fHelp) {
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "dumpprivkey <antimonyaddress>\n"
@@ -94,7 +93,7 @@ Value dumpprivkey(const Array& params, bool fHelp)
     if (!address.GetKeyID(keyID))
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to a key");
     CKey vchSecret;
-    if (!pwalletMain->GetKey(keyID, vchSecret))
+    if (!pwalletMain -> GetKey(keyID, vchSecret))
         throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
     return CBitcoinSecret(vchSecret).ToString();
 }
