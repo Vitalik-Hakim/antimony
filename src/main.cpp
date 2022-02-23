@@ -945,7 +945,7 @@ int CMerkleTx::GetBlocksToMaturity() const
 {
     if (!IsCoinBase())
         return 0;
-    return max(0, (COINBASE_MATURITY+20) - GetDepthInMainChain());
+    return max(0, (COINBASE_MATURITY+20) - GetDepthInMainChain()); // The other 20 blocks for coinbase maturity. 5 is somewhere else in the code.
 }
 
 
