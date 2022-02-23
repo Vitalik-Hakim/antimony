@@ -13,52 +13,60 @@
 #endif
 #define FD_SETSIZE 1024 // max number of fds in fd_set
 #include <winsock2.h>
+
 #include <mswsock.h>
+
 #include <ws2tcpip.h>
-#else
-#include <sys/types.h>
+
+#else#include <sys/types.h>
+
 #include <sys/socket.h>
+
 #include <sys/fcntl.h>
+
 #include <arpa/inet.h>
+
 #include <netdb.h>
+
 #include <net/if.h>
+
 #include <netinet/in.h>
+
 #include <ifaddrs.h>
+
 #endif
 
 typedef u_int SOCKET;
 #ifdef WIN32
-#define MSG_NOSIGNAL        0
-#define MSG_DONTWAIT        0
+#define MSG_NOSIGNAL 0
+#define MSG_DONTWAIT 0
 typedef int socklen_t;
-#else
-#include "errno.h"
-#define WSAGetLastError()   errno
-#define WSAEINVAL           EINVAL
-#define WSAEALREADY         EALREADY
-#define WSAEWOULDBLOCK      EWOULDBLOCK
-#define WSAEMSGSIZE         EMSGSIZE
-#define WSAEINTR            EINTR
-#define WSAEINPROGRESS      EINPROGRESS
-#define WSAEADDRINUSE       EADDRINUSE
-#define WSAENOTSOCK         EBADF
-#define INVALID_SOCKET      (SOCKET)(~0)
-#define SOCKET_ERROR        -1
+#else#include "errno.h"
+
+#define WSAGetLastError() errno
+#define WSAEINVAL EINVAL
+#define WSAEALREADY EALREADY
+#define WSAEWOULDBLOCK EWOULDBLOCK
+#define WSAEMSGSIZE EMSGSIZE
+#define WSAEINTR EINTR
+#define WSAEINPROGRESS EINPROGRESS
+#define WSAEADDRINUSE EADDRINUSE
+#define WSAENOTSOCK EBADF
+#define INVALID_SOCKET(SOCKET)(~0)
+#define SOCKET_ERROR - 1
 #endif
 
-inline int myclosesocket(SOCKET& hSocket)
-{
+inline int myclosesocket(SOCKET & hSocket) {
     if (hSocket == INVALID_SOCKET)
         return WSAENOTSOCK;
-#ifdef WIN32
+    #ifdef WIN32
     int ret = closesocket(hSocket);
-#else
+    #else
     int ret = close(hSocket);
-#endif
+    #endif
     hSocket = INVALID_SOCKET;
     return ret;
 }
-#define closesocket(s)      myclosesocket(s)
-
+#define closesocket(s) myclosesocket(s)
 
 #endif
