@@ -5,7 +5,7 @@ This is an Experimental Software purposely for my School Personal Project.
 
 Copyright (c) 2009-2014 Bitcoin Developers<br />
 Copyright (c) 2011-2014 Litecoin Developers<br />
-Copyright (c) 2020-2022 Antimony Developer<br />
+Copyright (c) 2020-2022 Antimony Developers<br />
 
 What is Antimony?
 ----------------
