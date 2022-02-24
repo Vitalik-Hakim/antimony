@@ -5,23 +5,26 @@
 #define _BITCOIN_ADDRMAN 1
 
 #include "netbase.h"
+
 #include "protocol.h"
+
 #include "util.h"
+
 #include "sync.h"
 
 
 #include <map>
+
 #include <vector>
 
 #include <openssl/rand.h>
 
 
 /** Extended statistics about a CAddress */
-class CAddrInfo : public CAddress
-{
-private:
-    // where knowledge about this address first came from
-    CNetAddr source;
+class CAddrInfo: public CAddress {
+    private:
+        // where knowledge about this address first came from
+        CNetAddr source;
 
     // last successful connection by us
     int64 nLastSuccess;
@@ -43,18 +46,13 @@ private:
 
     friend class CAddrMan;
 
-public:
+    public:
 
-    IMPLEMENT_SERIALIZE(
-        CAddress* pthis = (CAddress*)(this);
-        READWRITE(*pthis);
-        READWRITE(source);
-        READWRITE(nLastSuccess);
-        READWRITE(nAttempts);
-    )
+        IMPLEMENT_SERIALIZE(
+            CAddress * pthis = (CAddress * )(this); READWRITE( * pthis); READWRITE(source); READWRITE(nLastSuccess); READWRITE(nAttempts);
+        )
 
-    void Init()
-    {
+    void Init() {
         nLastSuccess = 0;
         nLastTry = 0;
         nAttempts = 0;
@@ -63,25 +61,26 @@ public:
         nRandomPos = -1;
     }
 
-    CAddrInfo(const CAddress &addrIn, const CNetAddr &addrSource) : CAddress(addrIn), source(addrSource)
-    {
+    CAddrInfo(const CAddress & addrIn,
+        const CNetAddr & addrSource): CAddress(addrIn),
+    source(addrSource) {
         Init();
     }
 
-    CAddrInfo() : CAddress(), source()
-    {
+    CAddrInfo(): CAddress(),
+    source() {
         Init();
     }
 
     // Calculate in which "tried" bucket this entry belongs
-    int GetTriedBucket(const std::vector<unsigned char> &nKey) const;
+    int GetTriedBucket(const std::vector < unsigned char > & nKey) const;
 
     // Calculate in which "new" bucket this entry belongs, given a certain source
-    int GetNewBucket(const std::vector<unsigned char> &nKey, const CNetAddr& src) const;
+    int GetNewBucket(const std::vector < unsigned char > & nKey,
+        const CNetAddr & src) const;
 
     // Calculate in which "new" bucket this entry belongs, using its default source
-    int GetNewBucket(const std::vector<unsigned char> &nKey) const
-    {
+    int GetNewBucket(const std::vector < unsigned char > & nKey) const {
         return GetNewBucket(nKey, source);
     }
 
@@ -162,47 +161,47 @@ public:
 #define ADDRMAN_GETADDR_MAX 2500
 
 /** Stochastical (IP) address manager */
-class CAddrMan
-{
-private:
-    // critical section to protect the inner data structures
-    mutable CCriticalSection cs;
+class CAddrMan {
+    private:
+        // critical section to protect the inner data structures
+        mutable CCriticalSection cs;
 
     // secret key to randomize bucket select with
-    std::vector<unsigned char> nKey;
+    std::vector < unsigned char > nKey;
 
     // last used nId
     int nIdCount;
 
     // table with information about all nIds
-    std::map<int, CAddrInfo> mapInfo;
+    std::map < int, CAddrInfo > mapInfo;
 
     // find an nId based on its network address
-    std::map<CNetAddr, int> mapAddr;
+    std::map < CNetAddr, int > mapAddr;
 
     // randomly-ordered vector of all nIds
-    std::vector<int> vRandom;
+    std::vector < int > vRandom;
 
     // number of "tried" entries
     int nTried;
 
     // list of "tried" buckets
-    std::vector<std::vector<int> > vvTried;
+    std::vector < std::vector < int > > vvTried;
 
     // number of (unique) "new" entries
     int nNew;
 
     // list of "new" buckets
-    std::vector<std::set<int> > vvNew;
+    std::vector < std::set < int > > vvNew;
 
-protected:
+    protected:
 
-    // Find an entry.
-    CAddrInfo* Find(const CNetAddr& addr, int *pnId = NULL);
+        // Find an entry.
+        CAddrInfo * Find(const CNetAddr & addr, int * pnId = NULL);
 
     // find an entry, creating it if necessary.
     // nTime and nServices of found node is updated, if necessary.
-    CAddrInfo* Create(const CAddress &addr, const CNetAddr &addrSource, int *pnId = NULL);
+    CAddrInfo * Create(const CAddress & addr,
+        const CNetAddr & addrSource, int * pnId = NULL);
 
     // Swap two elements in vRandom.
     void SwapRandom(unsigned int nRandomPos1, unsigned int nRandomPos2);
@@ -217,202 +216,183 @@ protected:
 
     // Move an entry from the "new" table(s) to the "tried" table
     // @pre vvUnkown[nOrigin].count(nId) != 0
-    void MakeTried(CAddrInfo& info, int nId, int nOrigin);
+    void MakeTried(CAddrInfo & info, int nId, int nOrigin);
 
     // Mark an entry "good", possibly moving it from "new" to "tried".
-    void Good_(const CService &addr, int64 nTime);
+    void Good_(const CService & addr, int64 nTime);
 
     // Add an entry to the "new" table.
-    bool Add_(const CAddress &addr, const CNetAddr& source, int64 nTimePenalty);
+    bool Add_(const CAddress & addr,
+        const CNetAddr & source, int64 nTimePenalty);
 
     // Mark an entry as attempted to connect.
-    void Attempt_(const CService &addr, int64 nTime);
+    void Attempt_(const CService & addr, int64 nTime);
 
     // Select an address to connect to.
     // nUnkBias determines how much to favor new addresses over tried ones (min=0, max=100)
     CAddress Select_(int nUnkBias);
 
-#ifdef DEBUG_ADDRMAN
+    #ifdef DEBUG_ADDRMAN
     // Perform consistency check. Returns an error code or zero.
     int Check_();
-#endif
+    #endif
 
     // Select several addresses at once.
-    void GetAddr_(std::vector<CAddress> &vAddr);
+    void GetAddr_(std::vector < CAddress > & vAddr);
 
     // Mark an entry as currently-connected-to.
-    void Connected_(const CService &addr, int64 nTime);
+    void Connected_(const CService & addr, int64 nTime);
 
-public:
+    public:
 
-    IMPLEMENT_SERIALIZE
-    (({
-        // serialized format:
-        // * version byte (currently 0)
-        // * nKey
-        // * nNew
-        // * nTried
-        // * number of "new" buckets
-        // * all nNew addrinfos in vvNew
-        // * all nTried addrinfos in vvTried
-        // * for each bucket:
-        //   * number of elements
-        //   * for each element: index
-        //
-        // Notice that vvTried, mapAddr and vVector are never encoded explicitly;
-        // they are instead reconstructed from the other information.
-        //
-        // vvNew is serialized, but only used if ADDRMAN_UNKOWN_BUCKET_COUNT didn't change,
-        // otherwise it is reconstructed as well.
-        //
-        // This format is more complex, but significantly smaller (at most 1.5 MiB), and supports
-        // changes to the ADDRMAN_ parameters without breaking the on-disk structure.
-        {
-            LOCK(cs);
-            unsigned char nVersion = 0;
-            READWRITE(nVersion);
-            READWRITE(nKey);
-            READWRITE(nNew);
-            READWRITE(nTried);
-
-            CAddrMan *am = const_cast<CAddrMan*>(this);
-            if (fWrite)
+        IMPLEMENT_SERIALIZE(({
+            // serialized format:
+            // * version byte (currently 0)
+            // * nKey
+            // * nNew
+            // * nTried
+            // * number of "new" buckets
+            // * all nNew addrinfos in vvNew
+            // * all nTried addrinfos in vvTried
+            // * for each bucket:
+            //   * number of elements
+            //   * for each element: index
+            //
+            // Notice that vvTried, mapAddr and vVector are never encoded explicitly;
+            // they are instead reconstructed from the other information.
+            //
+            // vvNew is serialized, but only used if ADDRMAN_UNKOWN_BUCKET_COUNT didn't change,
+            // otherwise it is reconstructed as well.
+            //
+            // This format is more complex, but significantly smaller (at most 1.5 MiB), and supports
+            // changes to the ADDRMAN_ parameters without breaking the on-disk structure.
             {
-                int nUBuckets = ADDRMAN_NEW_BUCKET_COUNT;
-                READWRITE(nUBuckets);
-                std::map<int, int> mapUnkIds;
-                int nIds = 0;
-                for (std::map<int, CAddrInfo>::iterator it = am->mapInfo.begin(); it != am->mapInfo.end(); it++)
-                {
-                    if (nIds == nNew) break; // this means nNew was wrong, oh ow
-                    mapUnkIds[(*it).first] = nIds;
-                    CAddrInfo &info = (*it).second;
-                    if (info.nRefCount)
-                    {
+                LOCK(cs);
+                unsigned char nVersion = 0;
+                READWRITE(nVersion);
+                READWRITE(nKey);
+                READWRITE(nNew);
+                READWRITE(nTried);
+
+                CAddrMan * am = const_cast < CAddrMan * > (this);
+                if (fWrite) {
+                    int nUBuckets = ADDRMAN_NEW_BUCKET_COUNT;
+                    READWRITE(nUBuckets);
+                    std::map < int, int > mapUnkIds;
+                    int nIds = 0;
+                    for (std::map < int, CAddrInfo > ::iterator it = am -> mapInfo.begin(); it != am -> mapInfo.end(); it++) {
+                        if (nIds == nNew) break; // this means nNew was wrong, oh ow
+                        mapUnkIds[( * it).first] = nIds;
+                        CAddrInfo & info = ( * it).second;
+                        if (info.nRefCount) {
+                            READWRITE(info);
+                            nIds++;
+                        }
+                    }
+                    nIds = 0;
+                    for (std::map < int, CAddrInfo > ::iterator it = am -> mapInfo.begin(); it != am -> mapInfo.end(); it++) {
+                        if (nIds == nTried) break; // this means nTried was wrong, oh ow
+                        CAddrInfo & info = ( * it).second;
+                        if (info.fInTried) {
+                            READWRITE(info);
+                            nIds++;
+                        }
+                    }
+                    for (std::vector < std::set < int > > ::iterator it = am -> vvNew.begin(); it != am -> vvNew.end(); it++) {
+                        const std::set < int > & vNew = ( * it);
+                        int nSize = vNew.size();
+                        READWRITE(nSize);
+                        for (std::set < int > ::iterator it2 = vNew.begin(); it2 != vNew.end(); it2++) {
+                            int nIndex = mapUnkIds[ * it2];
+                            READWRITE(nIndex);
+                        }
+                    }
+                } else {
+                    int nUBuckets = 0;
+                    READWRITE(nUBuckets);
+                    am -> nIdCount = 0;
+                    am -> mapInfo.clear();
+                    am -> mapAddr.clear();
+                    am -> vRandom.clear();
+                    am -> vvTried = std::vector < std::vector < int > > (ADDRMAN_TRIED_BUCKET_COUNT, std::vector < int > (0));
+                    am -> vvNew = std::vector < std::set < int > > (ADDRMAN_NEW_BUCKET_COUNT, std::set < int > ());
+                    for (int n = 0; n < am -> nNew; n++) {
+                        CAddrInfo & info = am -> mapInfo[n];
                         READWRITE(info);
-                        nIds++;
-                    }
-                }
-                nIds = 0;
-                for (std::map<int, CAddrInfo>::iterator it = am->mapInfo.begin(); it != am->mapInfo.end(); it++)
-                {
-                    if (nIds == nTried) break; // this means nTried was wrong, oh ow
-                    CAddrInfo &info = (*it).second;
-                    if (info.fInTried)
-                    {
-                        READWRITE(info);
-                        nIds++;
-                    }
-                }
-                for (std::vector<std::set<int> >::iterator it = am->vvNew.begin(); it != am->vvNew.end(); it++)
-                {
-                    const std::set<int> &vNew = (*it);
-                    int nSize = vNew.size();
-                    READWRITE(nSize);
-                    for (std::set<int>::iterator it2 = vNew.begin(); it2 != vNew.end(); it2++)
-                    {
-                        int nIndex = mapUnkIds[*it2];
-                        READWRITE(nIndex);
-                    }
-                }
-            } else {
-                int nUBuckets = 0;
-                READWRITE(nUBuckets);
-                am->nIdCount = 0;
-                am->mapInfo.clear();
-                am->mapAddr.clear();
-                am->vRandom.clear();
-                am->vvTried = std::vector<std::vector<int> >(ADDRMAN_TRIED_BUCKET_COUNT, std::vector<int>(0));
-                am->vvNew = std::vector<std::set<int> >(ADDRMAN_NEW_BUCKET_COUNT, std::set<int>());
-                for (int n = 0; n < am->nNew; n++)
-                {
-                    CAddrInfo &info = am->mapInfo[n];
-                    READWRITE(info);
-                    am->mapAddr[info] = n;
-                    info.nRandomPos = vRandom.size();
-                    am->vRandom.push_back(n);
-                    if (nUBuckets != ADDRMAN_NEW_BUCKET_COUNT)
-                    {
-                        am->vvNew[info.GetNewBucket(am->nKey)].insert(n);
-                        info.nRefCount++;
-                    }
-                }
-                am->nIdCount = am->nNew;
-                int nLost = 0;
-                for (int n = 0; n < am->nTried; n++)
-                {
-                    CAddrInfo info;
-                    READWRITE(info);
-                    std::vector<int> &vTried = am->vvTried[info.GetTriedBucket(am->nKey)];
-                    if (vTried.size() < ADDRMAN_TRIED_BUCKET_SIZE)
-                    {
+                        am -> mapAddr[info] = n;
                         info.nRandomPos = vRandom.size();
-                        info.fInTried = true;
-                        am->vRandom.push_back(am->nIdCount);
-                        am->mapInfo[am->nIdCount] = info;
-                        am->mapAddr[info] = am->nIdCount;
-                        vTried.push_back(am->nIdCount);
-                        am->nIdCount++;
-                    } else {
-                        nLost++;
-                    }
-                }
-                am->nTried -= nLost;
-                for (int b = 0; b < nUBuckets; b++)
-                {
-                    std::set<int> &vNew = am->vvNew[b];
-                    int nSize = 0;
-                    READWRITE(nSize);
-                    for (int n = 0; n < nSize; n++)
-                    {
-                        int nIndex = 0;
-                        READWRITE(nIndex);
-                        CAddrInfo &info = am->mapInfo[nIndex];
-                        if (nUBuckets == ADDRMAN_NEW_BUCKET_COUNT && info.nRefCount < ADDRMAN_NEW_BUCKETS_PER_ADDRESS)
-                        {
+                        am -> vRandom.push_back(n);
+                        if (nUBuckets != ADDRMAN_NEW_BUCKET_COUNT) {
+                            am -> vvNew[info.GetNewBucket(am -> nKey)].insert(n);
                             info.nRefCount++;
-                            vNew.insert(nIndex);
+                        }
+                    }
+                    am -> nIdCount = am -> nNew;
+                    int nLost = 0;
+                    for (int n = 0; n < am -> nTried; n++) {
+                        CAddrInfo info;
+                        READWRITE(info);
+                        std::vector < int > & vTried = am -> vvTried[info.GetTriedBucket(am -> nKey)];
+                        if (vTried.size() < ADDRMAN_TRIED_BUCKET_SIZE) {
+                            info.nRandomPos = vRandom.size();
+                            info.fInTried = true;
+                            am -> vRandom.push_back(am -> nIdCount);
+                            am -> mapInfo[am -> nIdCount] = info;
+                            am -> mapAddr[info] = am -> nIdCount;
+                            vTried.push_back(am -> nIdCount);
+                            am -> nIdCount++;
+                        } else {
+                            nLost++;
+                        }
+                    }
+                    am -> nTried -= nLost;
+                    for (int b = 0; b < nUBuckets; b++) {
+                        std::set < int > & vNew = am -> vvNew[b];
+                        int nSize = 0;
+                        READWRITE(nSize);
+                        for (int n = 0; n < nSize; n++) {
+                            int nIndex = 0;
+                            READWRITE(nIndex);
+                            CAddrInfo & info = am -> mapInfo[nIndex];
+                            if (nUBuckets == ADDRMAN_NEW_BUCKET_COUNT && info.nRefCount < ADDRMAN_NEW_BUCKETS_PER_ADDRESS) {
+                                info.nRefCount++;
+                                vNew.insert(nIndex);
+                            }
                         }
                     }
                 }
             }
-        }
-    });)
+        });)
 
-    CAddrMan() : vRandom(0), vvTried(ADDRMAN_TRIED_BUCKET_COUNT, std::vector<int>(0)), vvNew(ADDRMAN_NEW_BUCKET_COUNT, std::set<int>())
-    {
-         nKey.resize(32);
-         RAND_bytes(&nKey[0], 32);
+    CAddrMan(): vRandom(0), vvTried(ADDRMAN_TRIED_BUCKET_COUNT, std::vector < int > (0)), vvNew(ADDRMAN_NEW_BUCKET_COUNT, std::set < int > ()) {
+        nKey.resize(32);
+        RAND_bytes( & nKey[0], 32);
 
-         nIdCount = 0;
-         nTried = 0;
-         nNew = 0;
+        nIdCount = 0;
+        nTried = 0;
+        nNew = 0;
     }
 
     // Return the number of (unique) addresses in all tables.
-    int size()
-    {
+    int size() {
         return vRandom.size();
     }
 
     // Consistency check
-    void Check()
-    {
-#ifdef DEBUG_ADDRMAN
-        {
+    void Check() {
+        #ifdef DEBUG_ADDRMAN {
             LOCK(cs);
             int err;
-            if ((err=Check_()))
+            if ((err = Check_()))
                 printf("ADDRMAN CONSISTENCY CHECK FAILED!!! err=%i\n", err);
         }
-#endif
+        #endif
     }
 
     // Add a single address.
-    bool Add(const CAddress &addr, const CNetAddr& source, int64 nTimePenalty = 0)
-    {
-        bool fRet = false;
-        {
+    bool Add(const CAddress & addr,
+        const CNetAddr & source, int64 nTimePenalty = 0) {
+        bool fRet = false; {
             LOCK(cs);
             Check();
             fRet |= Add_(addr, source, nTimePenalty);
@@ -424,14 +404,13 @@ public:
     }
 
     // Add multiple addresses.
-    bool Add(const std::vector<CAddress> &vAddr, const CNetAddr& source, int64 nTimePenalty = 0)
-    {
-        int nAdd = 0;
-        {
+    bool Add(const std::vector < CAddress > & vAddr,
+        const CNetAddr & source, int64 nTimePenalty = 0) {
+        int nAdd = 0; {
             LOCK(cs);
             Check();
-            for (std::vector<CAddress>::const_iterator it = vAddr.begin(); it != vAddr.end(); it++)
-                nAdd += Add_(*it, source, nTimePenalty) ? 1 : 0;
+            for (std::vector < CAddress > ::const_iterator it = vAddr.begin(); it != vAddr.end(); it++)
+                nAdd += Add_( * it, source, nTimePenalty) ? 1 : 0;
             Check();
         }
         if (nAdd)
@@ -440,8 +419,7 @@ public:
     }
 
     // Mark an entry as accessible.
-    void Good(const CService &addr, int64 nTime = GetAdjustedTime())
-    {
+    void Good(const CService & addr, int64 nTime = GetAdjustedTime()) {
         {
             LOCK(cs);
             Check();
@@ -451,8 +429,7 @@ public:
     }
 
     // Mark an entry as connection attempted to.
-    void Attempt(const CService &addr, int64 nTime = GetAdjustedTime())
-    {
+    void Attempt(const CService & addr, int64 nTime = GetAdjustedTime()) {
         {
             LOCK(cs);
             Check();
@@ -463,10 +440,8 @@ public:
 
     // Choose an address to connect to.
     // nUnkBias determines how much "new" entries are favored over "tried" ones (0-100).
-    CAddress Select(int nUnkBias = 50)
-    {
-        CAddress addrRet;
-        {
+    CAddress Select(int nUnkBias = 50) {
+        CAddress addrRet; {
             LOCK(cs);
             Check();
             addrRet = Select_(nUnkBias);
@@ -476,11 +451,9 @@ public:
     }
 
     // Return a bunch of addresses, selected at random.
-    std::vector<CAddress> GetAddr()
-    {
+    std::vector < CAddress > GetAddr() {
         Check();
-        std::vector<CAddress> vAddr;
-        {
+        std::vector < CAddress > vAddr; {
             LOCK(cs);
             GetAddr_(vAddr);
         }
@@ -489,8 +462,7 @@ public:
     }
 
     // Mark an entry as currently-connected-to.
-    void Connected(const CService &addr, int64 nTime = GetAdjustedTime())
-    {
+    void Connected(const CService & addr, int64 nTime = GetAdjustedTime()) {
         {
             LOCK(cs);
             Check();
