@@ -6,97 +6,88 @@
 #define BITCOIN_KEYSTORE_H
 
 #include "crypter.h"
+
 #include "sync.h"
+
 #include <boost/signals2/signal.hpp>
 
 class CScript;
 
 /** A virtual base class for key stores */
-class CKeyStore
-{
-protected:
-    mutable CCriticalSection cs_KeyStore;
+class CKeyStore {
+    protected:
+        mutable CCriticalSection cs_KeyStore;
 
-public:
-    virtual ~CKeyStore() {}
+    public:
+        virtual~CKeyStore() {}
 
     // Add a key to the store.
-    virtual bool AddKeyPubKey(const CKey &key, const CPubKey &pubkey) =0;
-    virtual bool AddKey(const CKey &key);
+    virtual bool AddKeyPubKey(const CKey & key,
+        const CPubKey & pubkey) = 0;
+    virtual bool AddKey(const CKey & key);
 
     // Check whether a key corresponding to a given address is present in the store.
-    virtual bool HaveKey(const CKeyID &address) const =0;
-    virtual bool GetKey(const CKeyID &address, CKey& keyOut) const =0;
-    virtual void GetKeys(std::set<CKeyID> &setAddress) const =0;
-    virtual bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const;
+    virtual bool HaveKey(const CKeyID & address) const = 0;
+    virtual bool GetKey(const CKeyID & address, CKey & keyOut) const = 0;
+    virtual void GetKeys(std::set < CKeyID > & setAddress) const = 0;
+    virtual bool GetPubKey(const CKeyID & address, CPubKey & vchPubKeyOut) const;
 
     // Support for BIP 0013 : see https://en.bitcoin.it/wiki/BIP_0013
-    virtual bool AddCScript(const CScript& redeemScript) =0;
-    virtual bool HaveCScript(const CScriptID &hash) const =0;
-    virtual bool GetCScript(const CScriptID &hash, CScript& redeemScriptOut) const =0;
+    virtual bool AddCScript(const CScript & redeemScript) = 0;
+    virtual bool HaveCScript(const CScriptID & hash) const = 0;
+    virtual bool GetCScript(const CScriptID & hash, CScript & redeemScriptOut) const = 0;
 };
 
-typedef std::map<CKeyID, CKey> KeyMap;
-typedef std::map<CScriptID, CScript > ScriptMap;
+typedef std::map < CKeyID, CKey > KeyMap;
+typedef std::map < CScriptID, CScript > ScriptMap;
 
 /** Basic key store, that keeps keys in an address->secret map */
-class CBasicKeyStore : public CKeyStore
-{
-protected:
-    KeyMap mapKeys;
+class CBasicKeyStore: public CKeyStore {
+    protected: KeyMap mapKeys;
     ScriptMap mapScripts;
 
-public:
-    bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    bool HaveKey(const CKeyID &address) const
-    {
-        bool result;
-        {
+    public: bool AddKeyPubKey(const CKey & key,
+        const CPubKey & pubkey);
+    bool HaveKey(const CKeyID & address) const {
+        bool result; {
             LOCK(cs_KeyStore);
             result = (mapKeys.count(address) > 0);
         }
         return result;
     }
-    void GetKeys(std::set<CKeyID> &setAddress) const
-    {
-        setAddress.clear();
-        {
+    void GetKeys(std::set < CKeyID > & setAddress) const {
+        setAddress.clear(); {
             LOCK(cs_KeyStore);
             KeyMap::const_iterator mi = mapKeys.begin();
-            while (mi != mapKeys.end())
-            {
-                setAddress.insert((*mi).first);
+            while (mi != mapKeys.end()) {
+                setAddress.insert(( * mi).first);
                 mi++;
             }
         }
     }
-    bool GetKey(const CKeyID &address, CKey &keyOut) const
-    {
+    bool GetKey(const CKeyID & address, CKey & keyOut) const {
         {
             LOCK(cs_KeyStore);
             KeyMap::const_iterator mi = mapKeys.find(address);
-            if (mi != mapKeys.end())
-            {
-                keyOut = mi->second;
+            if (mi != mapKeys.end()) {
+                keyOut = mi -> second;
                 return true;
             }
         }
         return false;
     }
-    virtual bool AddCScript(const CScript& redeemScript);
-    virtual bool HaveCScript(const CScriptID &hash) const;
-    virtual bool GetCScript(const CScriptID &hash, CScript& redeemScriptOut) const;
+    virtual bool AddCScript(const CScript & redeemScript);
+    virtual bool HaveCScript(const CScriptID & hash) const;
+    virtual bool GetCScript(const CScriptID & hash, CScript & redeemScriptOut) const;
 };
 
-typedef std::map<CKeyID, std::pair<CPubKey, std::vector<unsigned char> > > CryptedKeyMap;
+typedef std::map < CKeyID, std::pair < CPubKey, std::vector < unsigned char > > > CryptedKeyMap;
 
 /** Keystore which keeps the private keys encrypted.
  * It derives from the basic key store, which is used if no encryption is active.
  */
-class CCryptoKeyStore : public CBasicKeyStore
-{
-private:
-    CryptedKeyMap mapCryptedKeys;
+class CCryptoKeyStore: public CBasicKeyStore {
+    private: CryptedKeyMap mapCryptedKeys;
 
     CKeyingMaterial vMasterKey;
 
@@ -104,30 +95,23 @@ private:
     // if fUseCrypto is false, vMasterKey must be empty
     bool fUseCrypto;
 
-protected:
-    bool SetCrypted();
+    protected: bool SetCrypted();
 
     // will encrypt previously unencrypted keys
-    bool EncryptKeys(CKeyingMaterial& vMasterKeyIn);
+    bool EncryptKeys(CKeyingMaterial & vMasterKeyIn);
 
-    bool Unlock(const CKeyingMaterial& vMasterKeyIn);
+    bool Unlock(const CKeyingMaterial & vMasterKeyIn);
 
-public:
-    CCryptoKeyStore() : fUseCrypto(false)
-    {
-    }
+    public: CCryptoKeyStore(): fUseCrypto(false) {}
 
-    bool IsCrypted() const
-    {
+    bool IsCrypted() const {
         return fUseCrypto;
     }
 
-    bool IsLocked() const
-    {
+    bool IsLocked() const {
         if (!IsCrypted())
             return false;
-        bool result;
-        {
+        bool result; {
             LOCK(cs_KeyStore);
             result = vMasterKey.empty();
         }
@@ -136,10 +120,11 @@ public:
 
     bool Lock();
 
-    virtual bool AddCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret);
-    bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    bool HaveKey(const CKeyID &address) const
-    {
+    virtual bool AddCryptedKey(const CPubKey & vchPubKey,
+        const std::vector < unsigned char > & vchCryptedSecret);
+    bool AddKeyPubKey(const CKey & key,
+        const CPubKey & pubkey);
+    bool HaveKey(const CKeyID & address) const {
         {
             LOCK(cs_KeyStore);
             if (!IsCrypted())
@@ -148,20 +133,17 @@ public:
         }
         return false;
     }
-    bool GetKey(const CKeyID &address, CKey& keyOut) const;
-    bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const;
-    void GetKeys(std::set<CKeyID> &setAddress) const
-    {
-        if (!IsCrypted())
-        {
+    bool GetKey(const CKeyID & address, CKey & keyOut) const;
+    bool GetPubKey(const CKeyID & address, CPubKey & vchPubKeyOut) const;
+    void GetKeys(std::set < CKeyID > & setAddress) const {
+        if (!IsCrypted()) {
             CBasicKeyStore::GetKeys(setAddress);
             return;
         }
         setAddress.clear();
         CryptedKeyMap::const_iterator mi = mapCryptedKeys.begin();
-        while (mi != mapCryptedKeys.end())
-        {
-            setAddress.insert((*mi).first);
+        while (mi != mapCryptedKeys.end()) {
+            setAddress.insert(( * mi).first);
             mi++;
         }
     }
@@ -169,7 +151,7 @@ public:
     /* Wallet status (encrypted, locked) changed.
      * Note: Called without locks held.
      */
-    boost::signals2::signal<void (CCryptoKeyStore* wallet)> NotifyStatusChanged;
+    boost::signals2::signal < void(CCryptoKeyStore * wallet) > NotifyStatusChanged;
 };
 
 #endif

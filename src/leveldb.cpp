@@ -3,16 +3,20 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "leveldb.h"
+
 #include "util.h"
 
 #include <leveldb/env.h>
+
 #include <leveldb/cache.h>
+
 #include <leveldb/filter_policy.h>
+
 #include <memenv/memenv.h>
 
 #include <boost/filesystem.hpp>
 
-void HandleError(const leveldb::Status &status) throw(leveldb_error) {
+void HandleError(const leveldb::Status & status) throw (leveldb_error) {
     if (status.ok())
         return;
     if (status.IsCorruption())
@@ -34,7 +38,7 @@ static leveldb::Options GetOptions(size_t nCacheSize) {
     return options;
 }
 
-CLevelDB::CLevelDB(const boost::filesystem::path &path, size_t nCacheSize, bool fMemory, bool fWipe) {
+CLevelDB::CLevelDB(const boost::filesystem::path & path, size_t nCacheSize, bool fMemory, bool fWipe) {
     penv = NULL;
     readoptions.verify_checksums = true;
     iteroptions.verify_checksums = true;
@@ -53,7 +57,7 @@ CLevelDB::CLevelDB(const boost::filesystem::path &path, size_t nCacheSize, bool 
         boost::filesystem::create_directory(path);
         printf("Opening LevelDB in %s\n", path.string().c_str());
     }
-    leveldb::Status status = leveldb::DB::Open(options, path.string(), &pdb);
+    leveldb::Status status = leveldb::DB::Open(options, path.string(), & pdb);
     if (!status.ok())
         throw std::runtime_error(strprintf("CLevelDB(): error opening database environment %s", status.ToString().c_str()));
     printf("Opened LevelDB successfully\n");
@@ -70,8 +74,8 @@ CLevelDB::~CLevelDB() {
     options.env = NULL;
 }
 
-bool CLevelDB::WriteBatch(CLevelDBBatch &batch, bool fSync) throw(leveldb_error) {
-    leveldb::Status status = pdb->Write(fSync ? syncoptions : writeoptions, &batch.batch);
+bool CLevelDB::WriteBatch(CLevelDBBatch & batch, bool fSync) throw (leveldb_error) {
+    leveldb::Status status = pdb -> Write(fSync ? syncoptions : writeoptions, & batch.batch);
     if (!status.ok()) {
         printf("LevelDB write failure: %s\n", status.ToString().c_str());
         HandleError(status);

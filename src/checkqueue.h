@@ -5,27 +5,30 @@
 #define CHECKQUEUE_H
 
 #include <boost/thread/mutex.hpp>
+
 #include <boost/thread/locks.hpp>
+
 #include <boost/thread/condition_variable.hpp>
 
 #include <vector>
+
 #include <algorithm>
 
-template<typename T> class CCheckQueueControl;
+template < typename T > class CCheckQueueControl;
 
 /** Queue for verifications that have to be performed.
-  * The verifications are represented by a type T, which must provide an
-  * operator(), returning a bool.
-  *
-  * One thread (the master) is assumed to push batches of verifications
-  * onto the queue, where they are processed by N-1 worker threads. When
-  * the master is done adding work, it temporarily joins the worker pool
-  * as an N'th worker, until all jobs are done.
-  */
-template<typename T> class CCheckQueue {
-private:
-    // Mutex to protect the inner state
-    boost::mutex mutex;
+ * The verifications are represented by a type T, which must provide an
+ * operator(), returning a bool.
+ *
+ * One thread (the master) is assumed to push batches of verifications
+ * onto the queue, where they are processed by N-1 worker threads. When
+ * the master is done adding work, it temporarily joins the worker pool
+ * as an N'th worker, until all jobs are done.
+ */
+template < typename T > class CCheckQueue {
+    private:
+        // Mutex to protect the inner state
+        boost::mutex mutex;
 
     // Worker threads block on this when out of work
     boost::condition_variable condWorker;
@@ -35,7 +38,7 @@ private:
 
     // The queue of elements to be processed.
     // As the order of booleans doesn't matter, it is used as a LIFO (stack)
-    std::vector<T> queue;
+    std::vector < T > queue;
 
     // The number of workers (including the master) that are idle.
     int nIdle;
@@ -59,14 +62,14 @@ private:
 
     // Internal function that does bulk of the verification work.
     bool Loop(bool fMaster = false) {
-        boost::condition_variable &cond = fMaster ? condMaster : condWorker;
-        std::vector<T> vChecks;
+        boost::condition_variable & cond = fMaster ? condMaster : condWorker;
+        std::vector < T > vChecks;
         vChecks.reserve(nBatchSize);
         unsigned int nNow = 0;
         bool fOk = true;
         do {
             {
-                boost::unique_lock<boost::mutex> lock(mutex);
+                boost::unique_lock < boost::mutex > lock(mutex);
                 // first do the clean-up of the previous loop run (allowing us to do it in the same critsect)
                 if (nNow) {
                     fAllOk &= fOk;
@@ -98,28 +101,28 @@ private:
                 //   all workers finish approximately simultaneously.
                 // * Try to account for idle jobs which will instantly start helping.
                 // * Don't do batches smaller than 1 (duh), or larger than nBatchSize.
-                nNow = std::max(1U, std::min(nBatchSize, (unsigned int)queue.size() / (nTotal + nIdle + 1)));
+                nNow = std::max(1 U, std::min(nBatchSize, (unsigned int) queue.size() / (nTotal + nIdle + 1)));
                 vChecks.resize(nNow);
                 for (unsigned int i = 0; i < nNow; i++) {
-                     // We want the lock on the mutex to be as short as possible, so swap jobs from the global
-                     // queue to the local batch vector instead of copying.
-                     vChecks[i].swap(queue.back());
-                     queue.pop_back();
+                    // We want the lock on the mutex to be as short as possible, so swap jobs from the global
+                    // queue to the local batch vector instead of copying.
+                    vChecks[i].swap(queue.back());
+                    queue.pop_back();
                 }
                 // Check whether we need to do work at all
                 fOk = fAllOk;
             }
             // execute work
-            BOOST_FOREACH(T &check, vChecks)
-                if (fOk)
-                    fOk = check();
+            BOOST_FOREACH(T & check, vChecks)
+            if (fOk)
+                fOk = check();
             vChecks.clear();
-        } while(true);
+        } while (true);
     }
 
-public:
-    // Create a new check queue
-    CCheckQueue(unsigned int nBatchSizeIn) :
+    public:
+        // Create a new check queue
+        CCheckQueue(unsigned int nBatchSizeIn):
         nIdle(0), nTotal(0), fAllOk(true), nTodo(0), fQuit(false), nBatchSize(nBatchSizeIn) {}
 
     // Worker thread
@@ -133,60 +136,59 @@ public:
     }
 
     // Add a batch of checks to the queue
-    void Add(std::vector<T> &vChecks) {
-        boost::unique_lock<boost::mutex> lock(mutex);
-        BOOST_FOREACH(T &check, vChecks) {
-            queue.push_back(T());
-            check.swap(queue.back());
+    void Add(std::vector < T > & vChecks) {
+            boost::unique_lock < boost::mutex > lock(mutex);
+            BOOST_FOREACH(T & check, vChecks) {
+                queue.push_back(T());
+                check.swap(queue.back());
+            }
+            nTodo += vChecks.size();
+            if (vChecks.size() == 1)
+                condWorker.notify_one();
+            else if (vChecks.size() > 1)
+                condWorker.notify_all();
         }
-        nTodo += vChecks.size();
-        if (vChecks.size() == 1)
-            condWorker.notify_one();
-        else if (vChecks.size() > 1)
-            condWorker.notify_all();
-    }
 
-    ~CCheckQueue() {
-    }
+        ~CCheckQueue() {}
 
-    friend class CCheckQueueControl<T>;
+    friend class CCheckQueueControl < T > ;
 };
 
 /** RAII-style controller object for a CCheckQueue that guarantees the passed
  *  queue is finished before continuing.
  */
-template<typename T> class CCheckQueueControl {
-private:
-    CCheckQueue<T> *pqueue;
+template < typename T > class CCheckQueueControl {
+    private:
+        CCheckQueue < T > * pqueue;
     bool fDone;
 
-public:
-    CCheckQueueControl(CCheckQueue<T> *pqueueIn) : pqueue(pqueueIn), fDone(false) {
-        // passed queue is supposed to be unused, or NULL
-        if (pqueue != NULL) {
-            assert(pqueue->nTotal == pqueue->nIdle);
-            assert(pqueue->nTodo == 0);
-            assert(pqueue->fAllOk == true);
+    public:
+        CCheckQueueControl(CCheckQueue < T > * pqueueIn): pqueue(pqueueIn), fDone(false) {
+            // passed queue is supposed to be unused, or NULL
+            if (pqueue != NULL) {
+                assert(pqueue -> nTotal == pqueue -> nIdle);
+                assert(pqueue -> nTodo == 0);
+                assert(pqueue -> fAllOk == true);
+            }
         }
-    }
 
     bool Wait() {
         if (pqueue == NULL)
             return true;
-        bool fRet = pqueue->Wait();
+        bool fRet = pqueue -> Wait();
         fDone = true;
         return fRet;
     }
 
-    void Add(std::vector<T> &vChecks) {
-        if (pqueue != NULL)
-            pqueue->Add(vChecks);
-    }
+    void Add(std::vector < T > & vChecks) {
+            if (pqueue != NULL)
+                pqueue -> Add(vChecks);
+        }
 
-    ~CCheckQueueControl() {
-        if (!fDone)
-            Wait();
-    }
+        ~CCheckQueueControl() {
+            if (!fDone)
+                Wait();
+        }
 };
 
 #endif
