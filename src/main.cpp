@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2020-2022 Antimony developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -62,9 +63,9 @@ bool fBenchmark = false;
 bool fTxIndex = false;
 unsigned int nCoinCacheSize = 5000;
 
-/** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
+/** Fees smaller than this (in Anty) are considered zero fee (for transaction creation) */
 int64 CTransaction::nMinTxFee = 100000;
-/** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
+/** Fees smaller than this (in Anty) are considered zero fee (for relaying) */
 int64 CTransaction::nMinRelayTxFee = 100000;
 
 CMedianFilter < int > cPeerBlockCounts(8, 0); // Amount of blocks that other nodes claim to have
@@ -4356,8 +4357,8 @@ void static AntimonyMiner(CWallet * pwallet) {
     }
 }
 
-void GenerateBitcoins(bool fGenerate, CWallet * pwallet) {
-    static boost::thread_group * minerThreads = NULL;
+void GenerateAntimony(bool fGenerate, CWallet* pwallet) {
+    static boost::thread_group* minerThreads = NULL;
 
     int nThreads = GetArg("-genproclimit", -1);
     if (nThreads < 0)

@@ -25,10 +25,11 @@ the Antimony client sofware, send me an email at aremeyaw_a@soshgic.edu.gh
 <h2>Release steps and Precautions:</h2>
 
 
-1) NOTE: Antimony.exe has an inbuilt miner that, your system may detect it as silent miner. So make sure you disable your Antivirus or add an exclusion for the folder.
+1) NOTE: Antimony.exe has an inbuilt miner that may be detected by your system as a silent miner. So make sure you disable your Antivirus or add an exclusion for the folder.
 2) Windows Smart Screen May appear saying `"Ah! ah! I Blocked a terrible app from destroying your system!" `but this is just a result of me not getting or buying a Windows publishing Certificate.
 
 3) Last but compulsory thing to setup will be the `antimony.conf` file in your package folder., this contains active nodes on the network that I couldn't hard code into the application.
+3) Last but compulsory thing to set up will be the `antimony.conf` file in your package folder. This contains active nodes on the network that I couldn't hard code into the application.
 Just copy and paste the .conf file in the `C:\Users\${Your username}\AppData\Roaming\Antimony`. It's a hidden folder so just paste this in your file explorer path.
 
 4) I will be updating a new file called `activenodes` with new ip's that are active nodes on the network. So if you are not getting connected just copy the new nodes in the `activenodes.txt` file and paste the contents into your configuration files or the `antimony.conf` file. In the path of where previous option showed you. That is the `C:\Users\${Your username}\AppData\Roaming\Antimony\antimony.conf`
