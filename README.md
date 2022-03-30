@@ -48,7 +48,7 @@ Don't be greedy after mining your coins.
 Make sure to send me some  ANTY donations at this address `AQXpFQRZ49wwJJsdYuWqS3FjSNLSNmYTyB` it will be much appreciated. 
 Linux or specifically Ubuntu Building instructions coming soon. Stay tuned.
 Thanks Have a nice day.
-### UPDATE 
+### Connect to a Node
 To connect to a specified node from the activenodes file , just open `help` then `debug`. Choose `console` and type in this 
 `addnode 192.. onetry `
 replace the 192.. with the specific node
