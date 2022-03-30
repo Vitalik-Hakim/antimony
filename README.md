@@ -72,20 +72,20 @@ This is the latest version that is working.
 ### Build CLI VERSION
 To build the daemon version:
 
-    `cd src`
-    `make -f makefile.unix`
-    `./antimonyd -server -daemon`
+    cd src
+    make -f makefile.unix
+    ./antimonyd -server -daemon
 This will build the daemon.
 
 ### Build GUI VERSION
 To build the GUI version:
 Right in the Antimony folder
 
-    `qmake`
-    `make`
-    `./antimony-qt`
+    qmake
+    make
+    ./antimony-qt
     or 
-    `./antimony-qt -testnet`
+    ./antimony-qt -testnet
     for Testnet
 This will build the GUI version of Antimony.
 
