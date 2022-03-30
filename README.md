@@ -60,6 +60,35 @@ License
 Antimony is released under the terms of the MIT license. See `COPYING` for more
 information or see http://opensource.org/licenses/MIT.
 
+Building from Source
+--------------------
+
+Building from source may require some dependencies. I will add them later.
+But if you have built bitcoin or litecoin from source, you may have all of them.
+Clone the v1.2 version tag from the repo using:
+`git clone -b v1.2 https://github.com/Vitalik-Hakim/antimony.git`
+This is the latest version that is working.
+
+### Build CLI VERSION
+To build the daemon version:
+
+    `cd src`
+    `make -f makefile.unix`
+    `./antimonyd -server -daemon`
+This will build the daemon.
+
+### Build GUI VERSION
+To build the GUI version:
+Right in the Antimony folder
+
+    `qmake`
+    `make`
+    `./antimony-qt`
+    or 
+    `./antimony-qt -testnet`
+    for Testnet
+This will build the GUI version of Antimony.
+
 Development process
 -------------------
 
