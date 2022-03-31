@@ -28,7 +28,7 @@ the Antimony client sofware, send me an email at aremeyaw_a@soshgic.edu.gh
 1) NOTE: Antimony.exe has an inbuilt miner that may be detected by your system as a silent miner. So make sure you disable your Antivirus or add an exclusion for the folder.
 2) Windows Smart Screen May appear saying `"Ah! ah! I Blocked a terrible app from destroying your system!" `but this is just a result of me not getting or buying a Windows publishing Certificate.
 
-3) Last but compulsory thing to setup will be the `antimony.conf` file in your package folder., this contains active nodes on the network that I couldn't hard code into the application.
+#Skip this step with a very simple process Go to Connect automatically through ActivateNode.bat
 3) Last but compulsory thing to set up will be the `antimony.conf` file in your package folder. This contains active nodes on the network that I couldn't hard code into the application.
 Just copy and paste the .conf file in the `C:\Users\${Your username}\AppData\Roaming\Antimony`. It's a hidden folder so just paste this in your file explorer path.
 
@@ -48,11 +48,16 @@ Don't be greedy after mining your coins.
 Make sure to send me some  ANTY donations at this address `AQXpFQRZ49wwJJsdYuWqS3FjSNLSNmYTyB` it will be much appreciated. 
 Linux or specifically Ubuntu Building instructions coming soon. Stay tuned.
 Thanks Have a nice day.
+
 ### Connect to a Node
 To connect to a specified node from the activenodes file , just open `help` then `debug`. Choose `console` and type in this 
 `addnode 192.. onetry `
 replace the 192.. with the specific node
 hit Enter
+
+### Connect automatically through ActivateNode.bat
+To connect to the specified node from the activenodes file , just run the ActivateNode.bat file and the node will be connected.
+
 
 License
 -------
