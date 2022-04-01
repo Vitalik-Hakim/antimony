@@ -71,7 +71,7 @@ Building from Source
 Building from source may require some dependencies. I will add them later.
 But if you have built bitcoin or litecoin from source, you may have all of them.
 Clone the v1.2 version tag from the repo using:
-`git clone -b v1.2 https://github.com/Vitalik-Hakim/antimony.git`
+    git clone -b v1.2 https://github.com/Vitalik-Hakim/antimony.git
 This is the latest version that is working.
 
 ### Build CLI VERSION
