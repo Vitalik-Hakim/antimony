@@ -18,7 +18,7 @@ Antimony is a lite version of Bitcoin using scrypt as a proof-of-work algorithm.
  - 2016 blocks to retarget difficulty
 
 For more information, as well as an immediately useable, binary version of
-the Antimony client sofware, send me an email at aremeyaw_a@soshgic.edu.gh
+the Antimony client sofware, send me an email at vitalikhakim@gmail.com
 
 <h3> HOW TO INSTALL for Windows OS </h3>
 
